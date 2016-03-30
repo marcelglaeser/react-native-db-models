@@ -3,6 +3,8 @@
 var React = require('react-native');
 var Promise = require('promise-es6').Promise;
 
+var ObjectID = require("bson-objectid");
+
 var AsyncStorage = React.AsyncStorage;
 
 var reactNativeStore = {};
@@ -147,6 +149,7 @@ Model.prototype.update = function (data, callback) {
                 for (var i in data) {
                     this.databaseData[this.tableName]["rows"][row][i] = data[i];
                 }
+                this.databaseData[this.tableName]["rows"][row]['updatedAt'] = new Date();
             }
 
         }
@@ -200,7 +203,10 @@ Model.prototype.remove = function (callback) {
             if (isMatch) {
                 counter += 1;
                 deleted_ids.push(this.databaseData[this.tableName]["rows"][row]['_id']);
-                delete this.databaseData[this.tableName]["rows"][row];
+                
+                this.databaseData[this.tableName]["rows"][row]["deletedAt"] = new Date();
+                this.databaseData[this.tableName]["rows"][row]["updatedAt"] = new Date();
+
                 this.databaseData[this.tableName]["totalrows"]--;
             }
 
@@ -211,7 +217,8 @@ Model.prototype.remove = function (callback) {
         for (var row in rows) {
             counter += 1;
             deleted_ids.push(this.databaseData[this.tableName]["rows"][row]['_id']);
-            delete this.databaseData[this.tableName]["rows"][row];
+            this.databaseData[this.tableName]["rows"][row]["deletedAt"] = new Date();
+            this.databaseData[this.tableName]["rows"][row]["updatedAt"] = new Date();
             this.databaseData[this.tableName]["totalrows"]--;
         }
     }
@@ -254,7 +261,18 @@ Model.prototype.removeById = function (id, callback) {
 
 Model.prototype.add = function (data, callback) {
     var autoinc = this.databaseData[this.tableName].autoinc;
-    data._id = autoinc;
+    
+    if(!('_id' in data)) {
+        data._id = ObjectID.generate();
+    }
+
+    if(!('createdAt' in data)) {
+        data.createdAt = new Date();
+    }
+    if(!('updatedAt' in data)) {
+        data.updatedAt = new Date();
+    }
+
     this.databaseData[this.tableName].rows[autoinc] = data;
     this.databaseData[this.tableName].autoinc += 1;
     this.databaseData[this.tableName].totalrows += 1;
@@ -276,10 +294,45 @@ Model.prototype.multiAdd = function (data, callback) {
 
     data.forEach(function(value, index){
         var autoinc = self.databaseData[self.tableName].autoinc;
-        value._id = autoinc + index;
+
+        if(!('_id' in value)) {
+            value._id = ObjectID.generate();
+        }
+
+        if(!('createdAt' in value)) {
+            value.createdAt = new Date();
+        }
+        if(!('updatedAt' in value)) {
+            value.updatedAt = new Date();
+        }
+
         self.databaseData[self.tableName].rows[autoinc] = value;
         self.databaseData[self.tableName].autoinc += 1;
         self.databaseData[self.tableName].totalrows += 1;
+    });
+
+    reactNativeStore.saveTable(this.tableName, this.databaseData[this.tableName]).then(function (added_data) {
+        if (callback) {
+            callback(data)
+        }
+    }, function (err) {
+        if (callback) {
+            callback(err)
+        }
+    });
+
+    this.init();
+}
+
+Model.prototype.multiUpdate = function (data, callback) {
+    var self = this;
+
+    data.forEach(function(value){
+
+        let index = _.findKey(self.databaseData[self.tableName].rows, {_id: value._id});
+        value.updatedAt = new Date();
+        self.databaseData[self.tableName].rows[index] = value;
+
     });
 
     reactNativeStore.saveTable(this.tableName, this.databaseData[this.tableName]).then(function (added_data) {
