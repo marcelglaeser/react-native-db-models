@@ -1,11 +1,7 @@
 'use strict';
-
-var React = require('react-native');
-var Promise = require('promise-es6').Promise;
-
-var ObjectID = require("bson-objectid");
-
-var AsyncStorage = React.AsyncStorage;
+import { AsyncStorage } from 'react-native';
+import { Promise } from 'promise-es6';
+import ObjectID from "bson-objectid";
 
 var reactNativeStore = {};
 var dbName = "db_store";
