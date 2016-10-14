@@ -1,8 +1,8 @@
 'use strict';
 
-var ReactNativeStore = require('./asyncstore');
-var Events = require('eventemitter3')
-var _ = require('lodash');
+import ReactNativeStore from './asyncstore';
+import Events from 'eventemitter3';
+import _ from 'lodash';
 var RNDBModel = {};
 RNDBModel.DBEvents = new Events()
 
