@@ -1,6 +1,6 @@
 'use strict';
 import { AsyncStorage } from 'react-native';
-import { Promise } from 'promise-es6';
+import { Promise } from 'es6-promise';
 import ObjectID from "bson-objectid";
 
 var reactNativeStore = {};
