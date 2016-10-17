@@ -115,10 +115,19 @@ RNDBModel.create_db = function(db){
      * @description Finds all the objects based on the query
      * @param query_data
      * @param callback
+     * @param limit
+     * @param offset
      */
-    me.get = function(query_data, callback){
+    me.get = function(query_data, callback, limit = false, offset = false){
         ReactNativeStore.table(me.db_name).then(function(collection){
-            var results = collection.where(query_data).find();
+            var collection = collection.where(query_data);
+            if(limit) {
+                collection.limit(limit);
+            }
+            if(offset) {
+                collection.offset(offset);
+            }
+            var results = collection.find();
             if(callback){
                 callback(results)
             }
