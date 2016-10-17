@@ -141,6 +141,7 @@ RNDBModel.create_db = function(db){
 
     /**
      * @description Gets all the data of the table
+     * @param includeRemoved
      * @param callback
      */
     me.get_all = function(includeRemoved, callback){
