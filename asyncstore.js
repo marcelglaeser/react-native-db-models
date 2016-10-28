@@ -176,7 +176,7 @@ Model.prototype.updateById = function (id, data, callback) {
     return this.update(data, callback);
 }
 
-Model.prototype.remove = function (callback) {
+Model.prototype.remove = function (callback, final) {
 
     var results = [];
     var rows = this.databaseData[this.tableName]["rows"];
@@ -199,10 +199,12 @@ Model.prototype.remove = function (callback) {
             if (isMatch) {
                 counter += 1;
                 deleted_ids.push(this.databaseData[this.tableName]["rows"][row]['_id']);
-                
-                this.databaseData[this.tableName]["rows"][row]["deletedAt"] = new Date();
-                this.databaseData[this.tableName]["rows"][row]["updatedAt"] = new Date();
-
+                if(final == false) {
+                  this.databaseData[this.tableName]["rows"][row]["deletedAt"] = new Date();
+                  this.databaseData[this.tableName]["rows"][row]["updatedAt"] = new Date();
+                } else {
+                  delete this.databaseData[this.tableName]["rows"][row];
+                }
                 this.databaseData[this.tableName]["totalrows"]--;
             }
 
@@ -213,8 +215,12 @@ Model.prototype.remove = function (callback) {
         for (var row in rows) {
             counter += 1;
             deleted_ids.push(this.databaseData[this.tableName]["rows"][row]['_id']);
-            this.databaseData[this.tableName]["rows"][row]["deletedAt"] = new Date();
-            this.databaseData[this.tableName]["rows"][row]["updatedAt"] = new Date();
+            if(final == false) {
+              this.databaseData[this.tableName]["rows"][row]["deletedAt"] = new Date();
+              this.databaseData[this.tableName]["rows"][row]["updatedAt"] = new Date();
+            } else {
+              delete this.databaseData[this.tableName]["rows"][row];
+            }
             this.databaseData[this.tableName]["totalrows"]--;
         }
     }
@@ -246,7 +252,7 @@ Model.prototype.remove = function (callback) {
 
 };
 
-Model.prototype.removeById = function (id, callback) {
+Model.prototype.removeById = function (id, callback, final) {
 
     this.where({
         _id: id
