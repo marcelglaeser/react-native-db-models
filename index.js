@@ -217,13 +217,13 @@ RNDBModel.create_db = function(db){
      * @param query_data
      * @param callback
      */
-    me.remove = function(query_data, callback){
+    me.remove = function(query_data, callback, final = false){
         ReactNativeStore.table(me.db_name).then(function(collection){
             collection.where(query_data).remove(function(data_removed){
                 if(callback){
                     callback(data_removed);
                 }
-            });
+            }, final = false);
         });
     };
 
@@ -232,14 +232,14 @@ RNDBModel.create_db = function(db){
      * @param id
      * @param callback
      */
-    me.remove_id = function(id, callback){
+    me.remove_id = function(id, callback, final = false){
         ReactNativeStore.table(me.db_name).then(function(collection){
             collection.removeById(id, function(data_removed){
                 if(callback){
                     callback(data_removed);
                 }
                 RNDBModel.DBEvents.emit("all", me.db_name)
-            });
+            }, final = false);
         });
     };
 
