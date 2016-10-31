@@ -369,17 +369,7 @@ Model.prototype.find = function () {
 
     if (hasParams) {
         for (var row in rows) {
-            var isMatch = false;
-            for (var key in this._where) {
-                if (rows[row][key] == this._where[key]) {
-                    isMatch = true;
-                } else {
-                    isMatch = false;
-                    break;
-                }
-            }
-
-            if (isMatch) {
+            if (this.isMatch(rows[row])) {
                 results.push(rows[row]);
             }
         }
@@ -399,5 +389,27 @@ Model.prototype.find = function () {
 
 }
 
+Model.prototype.isMatch = function (row) {
+    var isMatch = false;
+    for (var key in this._where) {
+        if(this.isArray(row[key]) == true) {
+            isMatch = this.isMatch(row[key]);
+        } else {
+            if (row[key] == this._where[key]) {
+                isMatch = true;
+            } else {
+                isMatch = false;
+                break;
+            }
+        }
+    }
+    return isMatch;
+}
+
+Model.prototype.isArray = function (object) {
+    if (object instanceof String) return false;
+    else if (object instanceof Array) return true;
+    else return false;
+}
 
 module.exports = reactNativeStore;
